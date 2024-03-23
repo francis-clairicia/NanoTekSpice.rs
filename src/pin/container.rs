@@ -4,7 +4,7 @@ use std::{
     rc::{Rc, Weak},
 };
 
-use crate::nts::components::{tristate::Tristate, Component, InvalidPin, PinNumber, Tick};
+use crate::components::{tristate::Tristate, Component, InvalidPin, PinNumber, Tick};
 
 use super::pin::{InputPin, Pin, PinMode, UnidirectionalInputPin};
 

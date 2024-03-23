@@ -1,16 +1,16 @@
 use std::{cell::Cell, collections::HashMap, rc::Weak};
 
-use crate::nts::{
+use crate::{
     components::{tristate::Tristate, Component, Input, InvalidPin, PinNumber, Tick},
     pin::{PinContainer, PinSpecification},
 };
 
-pub struct InputComponent {
+pub struct ClockComponent {
     pins: PinContainer,
     value_for_next_tick: Cell<Option<Tristate>>,
 }
 
-impl InputComponent {
+impl ClockComponent {
     const PIN_OUTPUT: usize = 1;
 
     pub fn new() -> Self {
@@ -26,7 +26,7 @@ impl InputComponent {
     }
 }
 
-impl Component for InputComponent {
+impl Component for ClockComponent {
     fn set_link(
         &self,
         pin: PinNumber,
@@ -43,6 +43,8 @@ impl Component for InputComponent {
 
             if let Some(state) = self.value_for_next_tick.replace(None) {
                 output.set(state);
+            } else {
+                output.set(!output.get());
             }
         })
     }
@@ -56,7 +58,7 @@ impl Component for InputComponent {
     }
 }
 
-impl Input for InputComponent {
+impl Input for ClockComponent {
     fn get_current_state(&self) -> Tristate {
         self.compute(Self::PIN_OUTPUT).unwrap()
     }

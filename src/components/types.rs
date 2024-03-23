@@ -1,8 +1,8 @@
 use std::{fmt, str::FromStr};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum ParseComponentTypeError {
-    UnknownComponentType(String),
+    InvalidValue,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -25,7 +25,7 @@ impl FromStr for ComponentType {
             "clock" => Ok(Self::Clock),
             "true" => Ok(Self::True),
             "false" => Ok(Self::False),
-            _ => Err(Self::Err::UnknownComponentType(s.to_owned())),
+            _ => Err(Self::Err::InvalidValue),
         }
     }
 }
@@ -43,8 +43,8 @@ impl fmt::Display for ComponentType {
 }
 
 #[cfg(test)]
-mod test {
-    use super::*;
+mod tests {
+    use super::{ComponentType, ParseComponentTypeError};
 
     mod test_input_type {
         use super::*;
@@ -143,8 +143,9 @@ mod test {
 
     #[test]
     fn test_string_parse_unknown() {
-        assert!(
-            matches!("unknown".parse::<ComponentType>(), Err(ParseComponentTypeError::UnknownComponentType(given)) if given == "unknown")
-        );
+        assert!(matches!(
+            "unknown".parse::<ComponentType>(),
+            Err(ParseComponentTypeError::InvalidValue)
+        ));
     }
 }

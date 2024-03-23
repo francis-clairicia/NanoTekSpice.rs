@@ -5,7 +5,7 @@ use std::{
     rc::Weak,
 };
 
-use crate::nts::components::{tristate::Tristate, Component, PinNumber, Tick};
+use crate::components::{tristate::Tristate, Component, PinNumber, Tick};
 
 pub trait Pin {
     fn compute_for_external(&self) -> Tristate;
@@ -204,7 +204,9 @@ impl PinLink {
 
 impl PartialEq for PinLink {
     fn eq(&self, other: &Self) -> bool {
-        self.component.ptr_eq(&other.component) && self.pin == other.pin
+        self.component.upgrade().is_some()
+            && self.component.ptr_eq(&other.component)
+            && self.pin == other.pin
     }
 }
 
@@ -217,7 +219,7 @@ impl Hash for PinLink {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
 
     mod test_output_pin {

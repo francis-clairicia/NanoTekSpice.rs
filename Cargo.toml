@@ -1,6 +1,16 @@
 [package]
+edition = "2021"
 name = "nanotekspice"
 version = "0.1.0"
-edition = "2021"
+
+[lib]
+doc = false
+name = "nanotekspice"
+path = "src/lib.rs"
+
+[[bin]]
+doc = false
+name = "nanotekspice"
+path = "src/main.rs"
 
 [dependencies]

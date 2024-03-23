@@ -1,6 +1,6 @@
 use std::rc::Weak;
 
-use crate::nts::components::{tristate::Tristate, Component, InvalidPin, PinNumber, Tick};
+use crate::components::{tristate::Tristate, Component, InvalidPin, PinNumber, Tick};
 
 pub struct ConstStateComponent<const STATE: bool>;
 

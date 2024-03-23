@@ -1,6 +1,6 @@
 use std::{cell::Cell, collections::HashMap, rc::Weak};
 
-use crate::nts::{
+use crate::{
     components::{tristate::Tristate, Component, InvalidPin, Output, PinNumber, Tick},
     pin::{PinContainer, PinSpecification},
 };

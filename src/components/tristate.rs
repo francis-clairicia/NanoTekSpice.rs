@@ -8,9 +8,9 @@ pub enum Tristate {
     Undefined,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum ParseTristateError {
-    UnknownValue(String),
+    InvalidValue,
 }
 
 impl FromStr for Tristate {
@@ -22,7 +22,7 @@ impl FromStr for Tristate {
             "0" => Ok(Self::State(false)),
             "1" => Ok(Self::State(true)),
             "U" => Ok(Self::Undefined),
-            _ => Err(Self::Err::UnknownValue(s.to_owned())),
+            _ => Err(Self::Err::InvalidValue),
         }
     }
 }
@@ -124,8 +124,8 @@ impl ops::Not for Tristate {
 }
 
 #[cfg(test)]
-mod test {
-    use super::*;
+mod tests {
+    use super::{ParseTristateError, Tristate};
 
     mod test_false_state {
         use super::*;
@@ -210,7 +210,7 @@ mod test {
         fn test_string_parse_bad_value() {
             assert!(matches!(
                 "unknown".parse::<Tristate>(),
-                Err(ParseTristateError::UnknownValue(given)) if given == "unknown"
+                Err(ParseTristateError::InvalidValue)
             ));
         }
     }
