@@ -5,6 +5,9 @@ use std::rc::Rc;
 use super::components::{tristate::Tristate, Component, Tick};
 
 mod builder;
+mod parser;
+
+pub use parser::{BuildErrorKind, ParseCircuitError, SyntaxErrorKind};
 
 #[derive(Debug, Clone)]
 pub enum SetInputError<'a> {
@@ -45,21 +48,23 @@ impl Circuit {
         Ok(())
     }
 
-    pub fn get_input(&self, name: &str) -> Option<Tristate> {
+    pub fn get_input(&self, name: &str) -> Option<String> {
         Some(
             self.components
                 .get(&name.to_owned())?
                 .as_input()?
-                .get_current_state(),
+                .get_current_state()
+                .to_string(),
         )
     }
 
-    pub fn get_output(&self, name: &str) -> Option<Tristate> {
+    pub fn get_output(&self, name: &str) -> Option<String> {
         Some(
             self.components
                 .get(&name.to_owned())?
                 .as_output()?
-                .get_value(),
+                .get_value()
+                .to_string(),
         )
     }
     /* Helpers for unit tests */
@@ -94,11 +99,19 @@ impl fmt::Display for Circuit {
     }
 }
 
+impl std::str::FromStr for Circuit {
+    type Err = ParseCircuitError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        parser::Parser::read(s)
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use super::builder::CircuitBuilder;
     use super::Circuit;
-    use crate::circuit::builder::CircuitBuilder;
-    use crate::{circuit::SetInputError, components::tristate::Tristate};
+    use super::SetInputError;
 
     #[test]
     fn test_create_and_handle_nanotekspice_circuit() {
@@ -115,23 +128,23 @@ mod tests {
         assert!(circuit.has_component("in"));
         assert!(circuit.has_component("out"));
 
-        assert_eq!(circuit.get_input("in").unwrap(), Tristate::Undefined);
-        assert_eq!(circuit.get_output("out").unwrap(), Tristate::Undefined);
+        assert_eq!(circuit.get_input("in").unwrap(), "U");
+        assert_eq!(circuit.get_output("out").unwrap(), "U");
         assert_eq!(circuit.current_tick, 0);
 
         circuit.set_value("in", "1").unwrap();
         circuit.simulate();
 
         assert_eq!(circuit.current_tick, 1);
-        assert_eq!(circuit.get_input("in").unwrap(), true.into());
-        assert_eq!(circuit.get_output("out").unwrap(), true.into());
+        assert_eq!(circuit.get_input("in").unwrap(), "1");
+        assert_eq!(circuit.get_output("out").unwrap(), "1");
 
         circuit.set_value("in", "0").unwrap();
         circuit.simulate();
 
         assert_eq!(circuit.current_tick, 2);
-        assert_eq!(circuit.get_input("in").unwrap(), false.into());
-        assert_eq!(circuit.get_output("out").unwrap(), false.into());
+        assert_eq!(circuit.get_input("in").unwrap(), "0");
+        assert_eq!(circuit.get_output("out").unwrap(), "0");
     }
 
     #[test]

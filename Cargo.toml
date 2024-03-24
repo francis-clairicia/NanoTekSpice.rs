@@ -14,3 +14,6 @@ name = "nanotekspice"
 path = "src/main.rs"
 
 [dependencies]
+
+[dev-dependencies]
+test-generator = "0.3.1"

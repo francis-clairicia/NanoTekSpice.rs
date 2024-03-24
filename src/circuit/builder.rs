@@ -9,7 +9,7 @@ use super::Circuit;
 #[derive(Debug, Clone)]
 pub enum CircuitBuildError<'a, Type: std::fmt::Debug + Clone> {
     NoChipset,
-    ComponentNameExists(&'a str),
+    ComponentNameOverride(&'a str),
     ComponentNameUnknown(&'a str),
     ComponentTypeUnknown(&'a str),
     ComponentLinkIssue(&'a str, Type, PinNumber),
@@ -75,7 +75,7 @@ where
                 v.insert((component_type, component.into()));
                 Ok(self)
             }
-            Entry::Occupied(_) => Err(CircuitBuildError::ComponentNameExists(name)),
+            Entry::Occupied(_) => Err(CircuitBuildError::ComponentNameOverride(name)),
         }
     }
 
@@ -192,7 +192,7 @@ mod tests {
 
         assert!(matches!(
             builder.add_component("twelve", "dummy"),
-            Err(CircuitBuildError::ComponentNameExists("dummy")),
+            Err(CircuitBuildError::ComponentNameOverride("dummy")),
         ))
     }
 

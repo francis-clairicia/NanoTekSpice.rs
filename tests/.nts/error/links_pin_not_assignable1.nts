@@ -1,0 +1,6 @@
+.chipsets:
+input  in
+output out
+
+.links:
+in:944162 out:1
