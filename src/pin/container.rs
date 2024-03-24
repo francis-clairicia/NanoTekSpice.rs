@@ -133,9 +133,15 @@ impl PinContainer {
     where
         F: FnOnce(&HashMap<PinNumber, &Cell<Tristate>>) -> (),
     {
-        if matches!(self.state.get(), PinContainerState::Available(current_tick) if current_tick == tick)
-        {
-            return;
+        if let PinContainerState::Available(current_tick) = self.state.get() {
+            if current_tick == tick {
+                return;
+            }
+        } else if let PinContainerState::Computing(current_tick) = self.state.get() {
+            if current_tick == tick {
+                return;
+            }
+            panic!("Cyclic pin simulation with different tick ({current_tick} != {tick})");
         }
 
         self.state.set(PinContainerState::Computing(tick));

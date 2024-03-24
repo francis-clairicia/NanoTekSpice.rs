@@ -60,7 +60,7 @@ impl UnidirectionalInputPin {
     }
 
     fn recompute_input_cache(&self, tick: Tick) {
-        self.input_state.set(PinState::Computing);
+        self.input_state.set(PinState::Computing(tick));
 
         let mut state: Tristate = false.into();
         for link in self.links.borrow().iter() {
@@ -82,10 +82,16 @@ impl InputPin for UnidirectionalInputPin {
     fn simulate(&self, tick: Tick) {
         match self.input_state.get() {
             PinState::NeverComputed => self.recompute_input_cache(tick),
-            PinState::Available(current_tick) if current_tick != tick => {
-                self.recompute_input_cache(tick)
+            PinState::Available(current_tick) => {
+                if current_tick != tick {
+                    self.recompute_input_cache(tick);
+                }
             }
-            _ => (),
+            PinState::Computing(current_tick) => {
+                if current_tick != tick {
+                    panic!("Cyclic pin simulation with different tick ({current_tick} != {tick})");
+                }
+            }
         }
     }
 
@@ -172,7 +178,7 @@ where
 enum PinState {
     NeverComputed,
     Available(Tick),
-    Computing,
+    Computing(Tick),
 }
 
 impl Default for PinState {
