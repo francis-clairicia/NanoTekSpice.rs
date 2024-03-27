@@ -3,6 +3,8 @@ pub mod tristate;
 pub mod types;
 
 /* Components implementations */
+pub mod composite;
+pub mod gates;
 pub mod single_pin;
 /* -------------------------- */
 
@@ -17,12 +19,7 @@ pub struct InvalidPin(pub PinNumber);
 pub trait Component {
     fn simulate(&self, tick: Tick);
     fn compute(&self, pin: PinNumber) -> Result<tristate::Tristate, InvalidPin>;
-    fn set_link(
-        &self,
-        pin: PinNumber,
-        other_component: Weak<dyn Component>,
-        other_pin: PinNumber,
-    ) -> Result<(), InvalidPin>;
+    fn set_link(&self, pin: PinNumber, other_component: Weak<dyn Component>, other_pin: PinNumber) -> Result<(), InvalidPin>;
 
     fn as_input(&self) -> Option<&dyn Input> {
         None
@@ -55,9 +52,7 @@ pub mod dummy {
 
     impl DummyComponent {
         pub fn new(nb_pins: usize) -> Self {
-            Self {
-                pins: PinContainer::new(nb_pins, HashMap::new()),
-            }
+            Self { pins: PinContainer::new(nb_pins, HashMap::new()) }
         }
     }
 
@@ -76,8 +71,7 @@ pub mod dummy {
             other_component: std::rc::Weak<dyn Component>,
             other_pin: PinNumber,
         ) -> Result<(), InvalidPin> {
-            self.pins
-                .set_link_to_external(pin, other_component, other_pin)
+            self.pins.set_link_to_external_component(pin, other_component, other_pin)
         }
     }
 }

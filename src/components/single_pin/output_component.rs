@@ -11,35 +11,26 @@ pub struct OutputComponent {
 }
 
 impl OutputComponent {
-    const PIN_INPUT: usize = 1;
+    const INPUT: PinNumber = 1;
 
     pub fn new() -> Self {
-        Self {
-            pins: PinContainer::new(1, Self::build_pins_spec()),
-            result: Default::default(),
-        }
+        Self { pins: PinContainer::new(1, Self::build_pins_spec()), result: Default::default() }
     }
 
     #[inline]
     fn build_pins_spec() -> HashMap<PinNumber, PinSpecification> {
-        HashMap::from([(Self::PIN_INPUT, PinSpecification::UnidirectionalInput())])
+        HashMap::from([(Self::INPUT, PinSpecification::UnidirectionalInput())])
     }
 }
 
 impl Component for OutputComponent {
-    fn set_link(
-        &self,
-        pin: PinNumber,
-        other_component: Weak<dyn Component>,
-        other_pin: PinNumber,
-    ) -> Result<(), InvalidPin> {
-        self.pins
-            .set_link_to_external(pin, other_component, other_pin)
+    fn set_link(&self, pin: PinNumber, other_component: Weak<dyn Component>, other_pin: PinNumber) -> Result<(), InvalidPin> {
+        self.pins.set_link_to_external_component(pin, other_component, other_pin)
     }
 
     fn simulate(&self, tick: Tick) {
         self.pins.simulate(tick, |_| {
-            let state = self.pins.compute_input(Self::PIN_INPUT).unwrap();
+            let state = self.pins.compute_input(Self::INPUT).unwrap();
 
             self.result.set(state);
         })

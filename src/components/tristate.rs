@@ -16,7 +16,6 @@ pub enum ParseTristateError {
 impl FromStr for Tristate {
     type Err = ParseTristateError;
 
-    #[inline]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "0" => Ok(Self::State(false)),
@@ -43,7 +42,7 @@ impl Default for Tristate {
 
 impl fmt::Display for Tristate {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
+        match self {
             Self::State(false) => write!(f, "0"),
             Self::State(true) => write!(f, "1"),
             Self::Undefined => write!(f, "U"),
@@ -132,10 +131,7 @@ mod tests {
 
         #[test]
         fn test_string_parse() {
-            assert!(matches!(
-                "0".parse::<Tristate>(),
-                Ok(Tristate::State(false))
-            ));
+            assert!(matches!("0".parse::<Tristate>(), Ok(Tristate::State(false))));
         }
 
         #[test]
@@ -208,10 +204,7 @@ mod tests {
 
         #[test]
         fn test_string_parse_bad_value() {
-            assert!(matches!(
-                "unknown".parse::<Tristate>(),
-                Err(ParseTristateError::InvalidValue)
-            ));
+            assert!(matches!("unknown".parse::<Tristate>(), Err(ParseTristateError::InvalidValue)));
         }
     }
 
@@ -220,134 +213,53 @@ mod tests {
 
         #[test]
         fn test_bitor_operator_truth_table() {
-            assert_eq!(
-                Tristate::State(false) | Tristate::State(false),
-                Tristate::State(false)
-            );
-            assert_eq!(
-                Tristate::State(false) | Tristate::State(true),
-                Tristate::State(true)
-            );
-            assert_eq!(
-                Tristate::State(true) | Tristate::State(false),
-                Tristate::State(true)
-            );
-            assert_eq!(
-                Tristate::State(true) | Tristate::State(true),
-                Tristate::State(true)
-            );
+            assert_eq!(Tristate::State(false) | Tristate::State(false), Tristate::State(false));
+            assert_eq!(Tristate::State(false) | Tristate::State(true), Tristate::State(true));
+            assert_eq!(Tristate::State(true) | Tristate::State(false), Tristate::State(true));
+            assert_eq!(Tristate::State(true) | Tristate::State(true), Tristate::State(true));
         }
 
         #[test]
         fn test_bitor_operator_handle_undefined_state() {
-            assert_eq!(
-                Tristate::Undefined | Tristate::Undefined,
-                Tristate::Undefined
-            );
-            assert_eq!(
-                Tristate::State(false) | Tristate::Undefined,
-                Tristate::Undefined
-            );
-            assert_eq!(
-                Tristate::Undefined | Tristate::State(false),
-                Tristate::Undefined
-            );
-            assert_eq!(
-                Tristate::State(true) | Tristate::Undefined,
-                Tristate::State(true)
-            );
-            assert_eq!(
-                Tristate::Undefined | Tristate::State(true),
-                Tristate::State(true)
-            );
+            assert_eq!(Tristate::Undefined | Tristate::Undefined, Tristate::Undefined);
+            assert_eq!(Tristate::State(false) | Tristate::Undefined, Tristate::Undefined);
+            assert_eq!(Tristate::Undefined | Tristate::State(false), Tristate::Undefined);
+            assert_eq!(Tristate::State(true) | Tristate::Undefined, Tristate::State(true));
+            assert_eq!(Tristate::Undefined | Tristate::State(true), Tristate::State(true));
         }
 
         #[test]
         fn test_bitand_operator_truth_table() {
-            assert_eq!(
-                Tristate::State(false) & Tristate::State(false),
-                Tristate::State(false)
-            );
-            assert_eq!(
-                Tristate::State(false) & Tristate::State(true),
-                Tristate::State(false)
-            );
-            assert_eq!(
-                Tristate::State(true) & Tristate::State(false),
-                Tristate::State(false)
-            );
-            assert_eq!(
-                Tristate::State(true) & Tristate::State(true),
-                Tristate::State(true)
-            );
+            assert_eq!(Tristate::State(false) & Tristate::State(false), Tristate::State(false));
+            assert_eq!(Tristate::State(false) & Tristate::State(true), Tristate::State(false));
+            assert_eq!(Tristate::State(true) & Tristate::State(false), Tristate::State(false));
+            assert_eq!(Tristate::State(true) & Tristate::State(true), Tristate::State(true));
         }
 
         #[test]
         fn test_bitand_operator_handle_undefined_state() {
-            assert_eq!(
-                Tristate::Undefined & Tristate::Undefined,
-                Tristate::Undefined
-            );
-            assert_eq!(
-                Tristate::State(false) & Tristate::Undefined,
-                Tristate::State(false)
-            );
-            assert_eq!(
-                Tristate::Undefined & Tristate::State(false),
-                Tristate::State(false)
-            );
-            assert_eq!(
-                Tristate::State(true) & Tristate::Undefined,
-                Tristate::Undefined
-            );
-            assert_eq!(
-                Tristate::Undefined & Tristate::State(true),
-                Tristate::Undefined
-            );
+            assert_eq!(Tristate::Undefined & Tristate::Undefined, Tristate::Undefined);
+            assert_eq!(Tristate::State(false) & Tristate::Undefined, Tristate::State(false));
+            assert_eq!(Tristate::Undefined & Tristate::State(false), Tristate::State(false));
+            assert_eq!(Tristate::State(true) & Tristate::Undefined, Tristate::Undefined);
+            assert_eq!(Tristate::Undefined & Tristate::State(true), Tristate::Undefined);
         }
 
         #[test]
         fn test_bitxor_operator_truth_table() {
-            assert_eq!(
-                Tristate::State(false) ^ Tristate::State(false),
-                Tristate::State(false)
-            );
-            assert_eq!(
-                Tristate::State(false) ^ Tristate::State(true),
-                Tristate::State(true)
-            );
-            assert_eq!(
-                Tristate::State(true) ^ Tristate::State(false),
-                Tristate::State(true)
-            );
-            assert_eq!(
-                Tristate::State(true) ^ Tristate::State(true),
-                Tristate::State(false)
-            );
+            assert_eq!(Tristate::State(false) ^ Tristate::State(false), Tristate::State(false));
+            assert_eq!(Tristate::State(false) ^ Tristate::State(true), Tristate::State(true));
+            assert_eq!(Tristate::State(true) ^ Tristate::State(false), Tristate::State(true));
+            assert_eq!(Tristate::State(true) ^ Tristate::State(true), Tristate::State(false));
         }
 
         #[test]
         fn test_bitxor_operator_handle_undefined_state() {
-            assert_eq!(
-                Tristate::Undefined ^ Tristate::Undefined,
-                Tristate::Undefined
-            );
-            assert_eq!(
-                Tristate::State(false) ^ Tristate::Undefined,
-                Tristate::Undefined
-            );
-            assert_eq!(
-                Tristate::Undefined ^ Tristate::State(false),
-                Tristate::Undefined
-            );
-            assert_eq!(
-                Tristate::State(true) ^ Tristate::Undefined,
-                Tristate::Undefined
-            );
-            assert_eq!(
-                Tristate::Undefined ^ Tristate::State(true),
-                Tristate::Undefined
-            );
+            assert_eq!(Tristate::Undefined ^ Tristate::Undefined, Tristate::Undefined);
+            assert_eq!(Tristate::State(false) ^ Tristate::Undefined, Tristate::Undefined);
+            assert_eq!(Tristate::Undefined ^ Tristate::State(false), Tristate::Undefined);
+            assert_eq!(Tristate::State(true) ^ Tristate::Undefined, Tristate::Undefined);
+            assert_eq!(Tristate::Undefined ^ Tristate::State(true), Tristate::Undefined);
         }
 
         #[test]

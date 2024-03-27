@@ -11,35 +11,26 @@ pub struct InputComponent {
 }
 
 impl InputComponent {
-    const PIN_OUTPUT: usize = 1;
+    const OUTPUT: PinNumber = 1;
 
     pub fn new() -> Self {
-        Self {
-            pins: PinContainer::new(1, Self::build_pins_spec()),
-            value_for_next_tick: Default::default(),
-        }
+        Self { pins: PinContainer::new(1, Self::build_pins_spec()), value_for_next_tick: Default::default() }
     }
 
     #[inline]
     fn build_pins_spec() -> HashMap<PinNumber, PinSpecification> {
-        HashMap::from([(Self::PIN_OUTPUT, PinSpecification::UnidirectionalOutput())])
+        HashMap::from([(Self::OUTPUT, PinSpecification::UnidirectionalOutput())])
     }
 }
 
 impl Component for InputComponent {
-    fn set_link(
-        &self,
-        pin: PinNumber,
-        other_component: Weak<dyn Component>,
-        other_pin: PinNumber,
-    ) -> Result<(), InvalidPin> {
-        self.pins
-            .set_link_to_external(pin, other_component, other_pin)
+    fn set_link(&self, pin: PinNumber, other_component: Weak<dyn Component>, other_pin: PinNumber) -> Result<(), InvalidPin> {
+        self.pins.set_link_to_external_component(pin, other_component, other_pin)
     }
 
     fn simulate(&self, tick: Tick) {
         self.pins.simulate(tick, |outputs| {
-            let output = outputs.get(&Self::PIN_OUTPUT).unwrap();
+            let output = outputs.get(&Self::OUTPUT).unwrap();
 
             if let Some(state) = self.value_for_next_tick.replace(None) {
                 output.set(state);
@@ -58,7 +49,7 @@ impl Component for InputComponent {
 
 impl Input for InputComponent {
     fn get_current_state(&self) -> Tristate {
-        self.compute(Self::PIN_OUTPUT).unwrap()
+        self.compute(Self::OUTPUT).unwrap()
     }
 
     fn set_state_for_next_tick(&self, state: Tristate) {

@@ -13,6 +13,13 @@ pub enum ComponentType {
     Clock,
     True,
     False,
+    /* Gates */
+    C4001, // NOR
+    C4011, // NAND
+    C4030, // XOR
+    C4069, // NOT
+    C4071, // OR
+    C4081, // AND
 }
 
 impl FromStr for ComponentType {
@@ -25,6 +32,12 @@ impl FromStr for ComponentType {
             "clock" => Ok(Self::Clock),
             "true" => Ok(Self::True),
             "false" => Ok(Self::False),
+            "4001" => Ok(Self::C4001),
+            "4011" => Ok(Self::C4011),
+            "4030" => Ok(Self::C4030),
+            "4069" => Ok(Self::C4069),
+            "4071" => Ok(Self::C4071),
+            "4081" => Ok(Self::C4081),
             _ => Err(Self::Err::InvalidValue),
         }
     }
@@ -32,12 +45,18 @@ impl FromStr for ComponentType {
 
 impl fmt::Display for ComponentType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self {
+        match self {
             Self::Input => write!(f, "input"),
             Self::Output => write!(f, "output"),
             Self::Clock => write!(f, "clock"),
             Self::True => write!(f, "true"),
             Self::False => write!(f, "false"),
+            Self::C4001 => write!(f, "4001"),
+            Self::C4011 => write!(f, "4011"),
+            Self::C4030 => write!(f, "4030"),
+            Self::C4069 => write!(f, "4069"),
+            Self::C4071 => write!(f, "4071"),
+            Self::C4081 => write!(f, "4081"),
         }
     }
 }
@@ -46,106 +65,53 @@ impl fmt::Display for ComponentType {
 mod tests {
     use super::{ComponentType, ParseComponentTypeError};
 
-    mod test_input_type {
-        use super::*;
+    macro_rules! tests_suite_for_type {
+        ($test_suite:ident, $component_type_name:expr, $component_type:ident) => {
+            mod $test_suite {
+                use super::*;
 
-        #[test]
-        fn test_string_parse() {
-            assert!(matches!(
-                "input".parse::<ComponentType>(),
-                Ok(ComponentType::Input)
-            ));
-        }
+                #[test]
+                fn test_string_parse() {
+                    let component_type_name: &'static str = $component_type_name;
 
-        #[test]
-        fn test_to_string() {
-            let component_type = ComponentType::Input;
+                    assert!(matches!(component_type_name.parse::<ComponentType>(), Ok(ComponentType::$component_type)));
+                }
 
-            assert_eq!(component_type.to_string(), "input");
-        }
+                #[test]
+                fn test_to_string() {
+                    let component_type = ComponentType::$component_type;
+                    let component_type_name: &'static str = $component_type_name;
+
+                    assert_eq!(component_type.to_string(), component_type_name);
+                }
+            }
+        };
     }
 
-    mod test_output_type {
-        use super::*;
+    tests_suite_for_type!(input, "input", Input);
 
-        #[test]
-        fn test_string_parse() {
-            assert!(matches!(
-                "output".parse::<ComponentType>(),
-                Ok(ComponentType::Output)
-            ));
-        }
+    tests_suite_for_type!(output, "output", Output);
 
-        #[test]
-        fn test_to_string() {
-            let component_type = ComponentType::Output;
+    tests_suite_for_type!(clock, "clock", Clock);
 
-            assert_eq!(component_type.to_string(), "output");
-        }
-    }
+    tests_suite_for_type!(r#true, "true", True);
 
-    mod test_clock_type {
-        use super::*;
+    tests_suite_for_type!(r#false, "false", False);
 
-        #[test]
-        fn test_string_parse() {
-            assert!(matches!(
-                "clock".parse::<ComponentType>(),
-                Ok(ComponentType::Clock)
-            ));
-        }
+    tests_suite_for_type!(component_4001, "4001", C4001);
 
-        #[test]
-        fn test_to_string() {
-            let component_type = ComponentType::Clock;
+    tests_suite_for_type!(component_4011, "4011", C4011);
 
-            assert_eq!(component_type.to_string(), "clock");
-        }
-    }
+    tests_suite_for_type!(component_4030, "4030", C4030);
 
-    mod test_true_type {
-        use super::*;
+    tests_suite_for_type!(component_4069, "4069", C4069);
 
-        #[test]
-        fn test_string_parse() {
-            assert!(matches!(
-                "true".parse::<ComponentType>(),
-                Ok(ComponentType::True)
-            ));
-        }
+    tests_suite_for_type!(component_4071, "4071", C4071);
 
-        #[test]
-        fn test_to_string() {
-            let component_type = ComponentType::True;
-
-            assert_eq!(component_type.to_string(), "true");
-        }
-    }
-
-    mod test_false_type {
-        use super::*;
-
-        #[test]
-        fn test_string_parse() {
-            assert!(matches!(
-                "false".parse::<ComponentType>(),
-                Ok(ComponentType::False)
-            ));
-        }
-
-        #[test]
-        fn test_to_string() {
-            let component_type = ComponentType::False;
-
-            assert_eq!(component_type.to_string(), "false");
-        }
-    }
+    tests_suite_for_type!(component_4081, "4081", C4081);
 
     #[test]
     fn test_string_parse_unknown() {
-        assert!(matches!(
-            "unknown".parse::<ComponentType>(),
-            Err(ParseComponentTypeError::InvalidValue)
-        ));
+        assert!(matches!("unknown".parse::<ComponentType>(), Err(ParseComponentTypeError::InvalidValue)));
     }
 }

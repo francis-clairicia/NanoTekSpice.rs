@@ -16,10 +16,7 @@ fn chipset_name_override_error(resource: &str) {
 
     assert!(matches!(
         content.parse::<Circuit>(),
-        Err(ParseCircuitError::Build {
-            line: _,
-            kind: BuildErrorKind::ComponentNameOverride { name: _ }
-        })
+        Err(ParseCircuitError::Build { line: _, kind: BuildErrorKind::ComponentNameOverride { name: _ } })
     ))
 }
 
@@ -29,10 +26,7 @@ fn chipset_syntax_error(resource: &str) {
 
     assert!(matches!(
         content.parse::<Circuit>(),
-        Err(ParseCircuitError::Syntax {
-            line: _,
-            kind: SyntaxErrorKind::InvalidChipsetFormat
-        })
+        Err(ParseCircuitError::Syntax { line: _, kind: SyntaxErrorKind::InvalidChipsetFormat })
     ))
 }
 
@@ -42,10 +36,7 @@ fn chipset_type_unknown(resource: &str) {
 
     assert!(matches!(
         content.parse::<Circuit>(),
-        Err(ParseCircuitError::Build {
-            line: _,
-            kind: BuildErrorKind::ComponentTypeUnknown { value: _ }
-        })
+        Err(ParseCircuitError::Build { line: _, kind: BuildErrorKind::ComponentTypeUnknown { value: _ } })
     ))
 }
 
@@ -54,13 +45,7 @@ fn chipset_type_unknown(resource: &str) {
 fn empty(resource: &str) {
     let content = read_to_string(resource).unwrap();
 
-    assert!(matches!(
-        content.parse::<Circuit>(),
-        Err(ParseCircuitError::Syntax {
-            line: _,
-            kind: SyntaxErrorKind::Empty
-        })
-    ))
+    assert!(matches!(content.parse::<Circuit>(), Err(ParseCircuitError::Syntax { line: _, kind: SyntaxErrorKind::Empty })))
 }
 
 #[test_resources("tests/.nts/error/links_before_chipsets.nts")]
@@ -69,10 +54,7 @@ fn links_before_chipsets(resource: &str) {
 
     assert!(matches!(
         content.parse::<Circuit>(),
-        Err(ParseCircuitError::Syntax {
-            line: _,
-            kind: SyntaxErrorKind::FirstDeclarationMismatch
-        })
+        Err(ParseCircuitError::Syntax { line: _, kind: SyntaxErrorKind::FirstDeclarationMismatch })
     ))
 }
 
@@ -82,10 +64,7 @@ fn links_name_unknown(resource: &str) {
 
     assert!(matches!(
         content.parse::<Circuit>(),
-        Err(ParseCircuitError::Build {
-            line: _,
-            kind: BuildErrorKind::ComponentNameUnknown { value: _ }
-        })
+        Err(ParseCircuitError::Build { line: _, kind: BuildErrorKind::ComponentNameUnknown { value: _ } })
     ))
 }
 
@@ -97,11 +76,7 @@ fn links_pin_not_assignable(resource: &str) {
         content.parse::<Circuit>(),
         Err(ParseCircuitError::Build {
             line: _,
-            kind: BuildErrorKind::ComponentLinkIssue {
-                name: _,
-                component_type: _,
-                pin: _
-            }
+            kind: BuildErrorKind::ComponentLinkIssue { name: _, component_type: _, pin: _ }
         })
     ))
 }
@@ -112,10 +87,7 @@ fn links_pin_not_number(resource: &str) {
 
     assert!(matches!(
         content.parse::<Circuit>(),
-        Err(ParseCircuitError::Syntax {
-            line: _,
-            kind: SyntaxErrorKind::InvalidLinkPin { pin: _ }
-        })
+        Err(ParseCircuitError::Syntax { line: _, kind: SyntaxErrorKind::InvalidLinkPin { pin: _ } })
     ))
 }
 
@@ -125,10 +97,7 @@ fn links_syntax_error(resource: &str) {
 
     assert!(matches!(
         content.parse::<Circuit>(),
-        Err(ParseCircuitError::Syntax {
-            line: _,
-            kind: SyntaxErrorKind::InvalidLinkFormat
-        })
+        Err(ParseCircuitError::Syntax { line: _, kind: SyntaxErrorKind::InvalidLinkFormat })
     ))
 }
 
@@ -136,13 +105,7 @@ fn links_syntax_error(resource: &str) {
 fn no_chipsets(resource: &str) {
     let content = read_to_string(resource).unwrap();
 
-    assert!(matches!(
-        content.parse::<Circuit>(),
-        Err(ParseCircuitError::Build {
-            line: _,
-            kind: BuildErrorKind::NoChipset
-        })
-    ))
+    assert!(matches!(content.parse::<Circuit>(), Err(ParseCircuitError::Build { line: _, kind: BuildErrorKind::NoChipset })))
 }
 
 #[test_resources("tests/.nts/error/redeclaration_*.nts")]
@@ -151,9 +114,6 @@ fn redeclaration(resource: &str) {
 
     assert!(matches!(
         content.parse::<Circuit>(),
-        Err(ParseCircuitError::Syntax {
-            line: _,
-            kind: SyntaxErrorKind::DeclarationDuplicate { declaration: _ }
-        })
+        Err(ParseCircuitError::Syntax { line: _, kind: SyntaxErrorKind::DeclarationDuplicate { declaration: _ } })
     ))
 }

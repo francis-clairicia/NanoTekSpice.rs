@@ -49,23 +49,11 @@ impl Circuit {
     }
 
     pub fn get_input(&self, name: &str) -> Option<String> {
-        Some(
-            self.components
-                .get(&name.to_owned())?
-                .as_input()?
-                .get_current_state()
-                .to_string(),
-        )
+        Some(self.components.get(&name.to_owned())?.as_input()?.get_current_state().to_string())
     }
 
     pub fn get_output(&self, name: &str) -> Option<String> {
-        Some(
-            self.components
-                .get(&name.to_owned())?
-                .as_output()?
-                .get_value()
-                .to_string(),
-        )
+        Some(self.components.get(&name.to_owned())?.as_output()?.get_value().to_string())
     }
     /* Helpers for unit tests */
     #[cfg(test)]
@@ -149,30 +137,16 @@ mod tests {
 
     #[test]
     fn test_error_for_non_existing_component_name() {
-        let circuit: Circuit = CircuitBuilder::default()
-            .add_component("input", "in")
-            .unwrap()
-            .build()
-            .unwrap();
+        let circuit: Circuit = CircuitBuilder::default().add_component("input", "in").unwrap().build().unwrap();
 
         assert!(!circuit.has_component("unknown"));
-        assert!(matches!(
-            circuit.set_value("unknown", "1"),
-            Err(SetInputError::UnknownName("unknown"))
-        ))
+        assert!(matches!(circuit.set_value("unknown", "1"), Err(SetInputError::UnknownName("unknown"))))
     }
 
     #[test]
     fn test_error_for_non_input_component_name() {
-        let circuit: Circuit = CircuitBuilder::default()
-            .add_component("output", "out")
-            .unwrap()
-            .build()
-            .unwrap();
+        let circuit: Circuit = CircuitBuilder::default().add_component("output", "out").unwrap().build().unwrap();
 
-        assert!(matches!(
-            circuit.set_value("out", "1"),
-            Err(SetInputError::NotAnInput("out"))
-        ))
+        assert!(matches!(circuit.set_value("out", "1"), Err(SetInputError::NotAnInput("out"))))
     }
 }

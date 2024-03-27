@@ -1,3 +1,6 @@
+use super::composite::parallel_gates::{
+    Component4001, Component4011, Component4030, Component4069, Component4071, Component4081,
+};
 use super::single_pin::clock_component::ClockComponent;
 use super::single_pin::const_component::{FalseComponent, TrueComponent};
 use super::single_pin::input_component::InputComponent;
@@ -22,6 +25,12 @@ impl ComponentFactory for DefaultComponentFactory {
             ComponentType::Clock => Box::new(ClockComponent::new()),
             ComponentType::True => Box::new(TrueComponent::new()),
             ComponentType::False => Box::new(FalseComponent::new()),
+            ComponentType::C4001 => Box::new(Component4001::new()),
+            ComponentType::C4011 => Box::new(Component4011::new()),
+            ComponentType::C4030 => Box::new(Component4030::new()),
+            ComponentType::C4069 => Box::new(Component4069::new()),
+            ComponentType::C4071 => Box::new(Component4071::new()),
+            ComponentType::C4081 => Box::new(Component4081::new()),
         }
     }
 }

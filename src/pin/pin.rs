@@ -52,18 +52,21 @@ pub struct UnidirectionalInputPin {
 
 impl UnidirectionalInputPin {
     pub fn new() -> Self {
-        Self {
-            input_value: Default::default(),
-            input_state: Default::default(),
-            links: HashSet::new().into(),
-        }
+        Self { input_value: Default::default(), input_state: Default::default(), links: HashSet::new().into() }
     }
 
     fn recompute_input_cache(&self, tick: Tick) {
+        let links = self.links.borrow();
+
+        if links.is_empty() {
+            self.input_state.set(PinState::Available(tick));
+            return;
+        }
+
         self.input_state.set(PinState::Computing(tick));
 
         let mut state: Tristate = false.into();
-        for link in self.links.borrow().iter() {
+        for link in links.iter() {
             state |= link.compute(tick);
         }
 
@@ -167,7 +170,7 @@ where
     fn compute_input(&self) -> Tristate {
         match self.mode.get() {
             PinMode::Input => self.input_pin.compute_input(),
-            PinMode::Output => false.into(),
+            PinMode::Output => Tristate::Undefined,
         }
     }
 }
@@ -202,17 +205,13 @@ impl PinLink {
         let component = self.component.upgrade().expect("Weak reference lost");
 
         component.simulate(tick);
-        component
-            .compute(self.pin)
-            .expect("Broken link to a pin of a component")
+        component.compute(self.pin).expect("Broken link to a pin of a component")
     }
 }
 
 impl PartialEq for PinLink {
     fn eq(&self, other: &Self) -> bool {
-        self.component.upgrade().is_some()
-            && self.component.ptr_eq(&other.component)
-            && self.pin == other.pin
+        self.component.upgrade().is_some() && self.component.ptr_eq(&other.component) && self.pin == other.pin
     }
 }
 
@@ -220,7 +219,7 @@ impl Eq for PinLink {}
 
 impl Hash for PinLink {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        ((self.component.as_ptr() as *const Self as usize), self.pin).hash(state);
+        ((self.component.as_ptr() as *const () as usize), self.pin).hash(state);
     }
 }
 

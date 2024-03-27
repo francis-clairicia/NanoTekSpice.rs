@@ -26,18 +26,12 @@ where
     Factory::Type: std::str::FromStr + std::fmt::Debug + Copy,
 {
     pub fn new(factory: Factory) -> Self {
-        Self {
-            components: HashMap::new(),
-            factory,
-        }
+        Self { components: HashMap::new(), factory }
     }
 
     pub fn build(self) -> Result<Circuit, CircuitBuildError<'static, Factory::Type>> {
-        let components: HashMap<String, Rc<dyn Component>> = self
-            .components
-            .into_iter()
-            .map(|(name, (_, component))| (name, component))
-            .collect();
+        let components: HashMap<String, Rc<dyn Component>> =
+            self.components.into_iter().map(|(name, (_, component))| (name, component)).collect();
 
         if components.is_empty() {
             return Err(CircuitBuildError::NoChipset);
@@ -49,10 +43,7 @@ where
             component.simulate(current_tick);
         }
 
-        Ok(Circuit {
-            current_tick,
-            components,
-        })
+        Ok(Circuit { current_tick, components })
     }
 
     pub fn add_component<'a>(
@@ -112,10 +103,7 @@ where
         &self,
         name: &'a str,
     ) -> Result<(Factory::Type, Rc<dyn Component>), CircuitBuildError<'a, Factory::Type>> {
-        let component_pair = self
-            .components
-            .get(name)
-            .ok_or(CircuitBuildError::ComponentNameUnknown(name))?;
+        let component_pair = self.components.get(name).ok_or(CircuitBuildError::ComponentNameUnknown(name))?;
 
         let component_type = component_pair.0;
         let component = component_pair.1.clone();
@@ -134,11 +122,7 @@ where
     ) -> Result<(), CircuitBuildError<'a, Factory::Type>> {
         match component.set_link(component_pin, other_component, other_component_pin) {
             Ok(_) => Ok(()),
-            Err(InvalidPin(pin)) => Err(CircuitBuildError::ComponentLinkIssue(
-                name,
-                component_type,
-                pin,
-            )),
+            Err(InvalidPin(pin)) => Err(CircuitBuildError::ComponentLinkIssue(name, component_type, pin)),
         }
     }
 }
@@ -169,20 +153,14 @@ mod tests {
 
     #[test]
     fn test_empty_circuit() {
-        assert!(matches!(
-            CircuitBuilder::new(MockComponentFactory).build(),
-            Err(CircuitBuildError::NoChipset)
-        ));
+        assert!(matches!(CircuitBuilder::new(MockComponentFactory).build(), Err(CircuitBuildError::NoChipset)));
     }
 
     #[test]
     fn test_add_component_error_unknown_type() {
         let builder = CircuitBuilder::new(MockComponentFactory);
 
-        assert!(matches!(
-            builder.add_component("dezkdmpk", "name"),
-            Err(CircuitBuildError::ComponentTypeUnknown("dezkdmpk"))
-        ))
+        assert!(matches!(builder.add_component("dezkdmpk", "name"), Err(CircuitBuildError::ComponentTypeUnknown("dezkdmpk"))))
     }
 
     #[test]
@@ -190,10 +168,7 @@ mod tests {
         let builder = CircuitBuilder::new(MockComponentFactory);
         let builder = builder.add_component("one", "dummy").unwrap();
 
-        assert!(matches!(
-            builder.add_component("twelve", "dummy"),
-            Err(CircuitBuildError::ComponentNameOverride("dummy")),
-        ))
+        assert!(matches!(builder.add_component("twelve", "dummy"), Err(CircuitBuildError::ComponentNameOverride("dummy")),))
     }
 
     #[test]
@@ -226,11 +201,7 @@ mod tests {
 
         assert!(matches!(
             builder.link_components("dummy_left", 42, "dummy_right", 1),
-            Err(CircuitBuildError::ComponentLinkIssue(
-                "dummy_left",
-                MockComponentType::OnePin,
-                42
-            )),
+            Err(CircuitBuildError::ComponentLinkIssue("dummy_left", MockComponentType::OnePin, 42)),
         ));
     }
 
@@ -242,11 +213,7 @@ mod tests {
 
         assert!(matches!(
             builder.link_components("dummy_left", 1, "dummy_right", 42),
-            Err(CircuitBuildError::ComponentLinkIssue(
-                "dummy_right",
-                MockComponentType::TwelvePins,
-                42
-            )),
+            Err(CircuitBuildError::ComponentLinkIssue("dummy_right", MockComponentType::TwelvePins, 42)),
         ));
     }
 }
